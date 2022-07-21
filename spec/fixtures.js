@@ -1,7 +1,4 @@
-var validStrings, invalidStrings, // used for stringifyJSON and parseJSON specs
-  weirdObjects; // used for stringifyJSON spec
-
-var stringifiableObjects = [
+var stringifiableValues = [
   9,
   null,
   true,
@@ -15,28 +12,73 @@ var stringifiableObjects = [
   [8, [[], 3, 4]],
   [[[['foo']]]],
   {},
-  {'a': 'apple'},
-  {'foo': true, 'bar': false, 'baz': null},
-  {'boolean, true': true, 'boolean, false': false, 'null': null },
+  { a: 'apple' },
+  { foo: true, bar: false, baz: null },
+  { 'boolean, true': true, 'boolean, false': false, null: null },
   // basic nesting
-  {'a': {'b': 'c'}},
-  {'a': ['b', 'c']},
-  [{'a': 'b'}, {'c': 'd'}],
-  {'a': [], 'c': {}, 'b': true}
+  { a: { 'b': 'c' } },
+  { a: ['b', 'c'] },
+  [ { a: 'b'}, {c: 'd' }],
+  { a: [], c: {}, b: true }
 ];
+
+var stringifiableTests = stringifiableValues.map(function(value) {
+  return {
+    label: JSON.stringify(value),
+    value: value
+  };
+});
 
 // used for stringifyJSON spec
 // hint: JSON does not allow you to stringify functions or
-// undefined values, so you should skip those key/value pairs.
-unstringifiableValues = [
+// undefined values, so you should skip them within objects
+// and arrays.
+var unstringifiableTests = [
   {
-    'functions': function() {},
-    'undefined': undefined
+    label: 'function() {}',
+    value: function() {}
   },
-  {'a': function() {}, 'b': undefined, 'c': true}
+  {
+    label: 'undefined',
+    value: undefined
+  },
+  {
+    label: '{"functions":function() {},"undefined":undefined}',
+    value: {
+      functions: function() {},
+      undefined: undefined
+    },
+  },
+  {
+    label: '{"a":undefined,"b":"b","c":7,"d":function() {}}',
+    value: {
+      a: undefined,
+      b: 'b',
+      c: 7,
+      d: function() {}
+    },
+  },
+  {
+    label: '[function() {},undefined]',
+    value: [
+      function() {},
+      undefined
+    ]
+  },
+  {
+    label: '["json derulo",function() {},42,undefined,["1"],{"a":"a",b:"b"}]',
+    value: [
+      'json derulo',
+      function() {},
+      42,
+      undefined,
+      ['1'],
+      {a: 'a', b: 'b'},
+    ]
+  },
 ];
 
-parseableStrings = [
+var parseableStrings = [
   // basic stuff
   '[]',
   '{"foo": ""}',
@@ -122,7 +164,7 @@ parseableStrings = [
 ];
 
 // JSON does not allow you to parse these strings
-unparseableStrings = [
+var unparseableStrings = [
   '["foo", "bar"',
   '["foo", "bar\\"]'
 ];
